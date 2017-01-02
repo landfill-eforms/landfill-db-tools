@@ -11,6 +11,4 @@ ext {
 dependencies {
 	compile('org.apache.poi:poi:' + poiVersion)
 	compile('org.apache.poi:poi-ooxml:' + poiVersion)
-	
-    testCompile 'junit:junit:4.12'
 }
