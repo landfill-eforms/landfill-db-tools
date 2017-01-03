@@ -7,8 +7,8 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.lacitysan.landfill.dbtools.scriptgen.constant.TableName;
-import org.lacitysan.landfill.lib.MonitoringPointType;
-import org.lacitysan.landfill.lib.Site;
+import org.lacitysan.landfill.lib.enumeration.MonitoringPointType;
+import org.lacitysan.landfill.lib.enumeration.Site;
 
 /**
  * Generates the SQL scripts to create and pre-populate the Sites, MonitoringPoints, 
