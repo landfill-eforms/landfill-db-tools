@@ -1,7 +1,11 @@
 package org.lacitysan.landfill.dbtools.scriptgen;
 
+import java.util.Arrays;
+
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.lacitysan.landfill.dbtools.scriptgen.constant.TableName;
 import org.lacitysan.landfill.lib.MonitoringPointType;
 import org.lacitysan.landfill.lib.Site;
 
@@ -9,39 +13,30 @@ import org.lacitysan.landfill.lib.Site;
  * Generates the SQL scripts to create and pre-populate the Sites, MonitoringPoints, 
  * and MonitoringPointTypes tables using the Excel spreadsheet that contains sites and types.
  * @author Alvin Quach
- *
  */
 public class SiteTypeScriptGen {
 
 	private XSSFSheet siteTypeWorksheet;
 
-	// TODO Move table names to a constant class.
-	private String siteTableName;
-	private String typeTableName;
-	private String pointTableName;
-
-	public SiteTypeScriptGen(XSSFSheet siteTypeWorksheet, String siteTableName, String typeTableName, String pointTableName) {
+	public SiteTypeScriptGen(XSSFSheet siteTypeWorksheet) {
 		this.siteTypeWorksheet = siteTypeWorksheet;
-		this.siteTableName = siteTableName;
-		this.typeTableName = typeTableName;
-		this.pointTableName = pointTableName;
 	}
 
 	public String getSiteScript(boolean includePK) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO dbo." + siteTableName + " (");
+		sb.append("INSERT INTO dbo." + TableName.SITES + " (");
 		if (includePK) {
-			sb.append(removeLastS(siteTableName) + "PK, ");
+			sb.append(removeLastS(TableName.SITES) + "PK, ");
 		}
 		sb.append("SiteName, ShortName, SiteType, Active)")
 		.append("\n")
 		.append("VALUES")
-		.append("\n\n");
+		.append("\n");
 		Site[] sites = Site.values();
 		for (Site site : sites) {
 			sb.append("\t(");
 			if (includePK) {
-				sb.append((site.ordinal() + 1) + ", ");
+				sb.append(site.ordinal() + ", ");
 			}
 			sb.append("'" + site.getName() + "', '" + site.getShortName() + "', '" + site.getType() + "', " + (site.isActive() ? 1 : 0) + ")");
 			sb.append(site.ordinal() + 1 == sites.length ?  ";\n" : ",\n");
@@ -51,19 +46,19 @@ public class SiteTypeScriptGen {
 
 	public String getTypeScript(boolean includePK) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO dbo." + typeTableName + " (");
+		sb.append("INSERT INTO dbo." + TableName.MONITORING_POINT_TYPES + " (");
 		if (includePK) {
-			sb.append(removeLastS(typeTableName) + "PK, ");
+			sb.append(removeLastS(TableName.MONITORING_POINT_TYPES) + "PK, ");
 		}
 		sb.append("TypeName)")
 		.append("\n")
 		.append("VALUES")
-		.append("\n\n");
+		.append("\n");
 		MonitoringPointType[] types = MonitoringPointType.values();
 		for (MonitoringPointType type : types) {
 			sb.append("\t(");
 			if (includePK) {
-				sb.append((type.ordinal() + 1) + ", ");
+				sb.append(type.ordinal() + ", ");
 			}
 			sb.append("'" + type.getName() + "')");
 			sb.append(type.ordinal() + 1 == types.length ?  ";\n" : ",\n");
@@ -73,16 +68,16 @@ public class SiteTypeScriptGen {
 
 	public String getPointScript(boolean includePK) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("INSERT INTO dbo." + pointTableName + " (");
+		sb.append("INSERT INTO dbo." + TableName.MONITORING_POINTS + " (");
 		if (includePK) {
-			sb.append(removeLastS(pointTableName) + "PK, ");
+			sb.append(removeLastS(TableName.MONITORING_POINTS) + "PK, ");
 		}
-		sb.append("MonitoringPointName, " + removeLastS(typeTableName) + "FK, " + removeLastS(siteTableName) + "FK)")
+		sb.append("MonitoringPointName, " + removeLastS(TableName.MONITORING_POINT_TYPES) + "FK, " + removeLastS(TableName.SITES) + "FK)")
 		.append("\n")
 		.append("VALUES")
-		.append("\n\n");
-		int rowIndex = 0;
+		.append("\n");
 		for (Row row : siteTypeWorksheet) {
+			int rowIndex = row.getRowNum();
 			if (rowIndex++ == 0) {
 				continue;
 			}
@@ -91,14 +86,20 @@ public class SiteTypeScriptGen {
 				sb.append(rowIndex);
 				sb.append(", ");
 			}
-			sb.append(row.getCell(2).toString())
+			sb.append("'" + row.getCell(2).toString() + "'")
 			.append(", ")
-			.append(MonitoringPointType.valueOf(row.getCell(1).getStringCellValue()).ordinal() + 1)
+			.append(Arrays.asList(MonitoringPointType.values()).stream().filter(t -> t.getName().equals(row.getCell(1).getStringCellValue())).findFirst().get().ordinal())
 			.append(", ")
-			.append(Site.valueOf(row.getCell(0).getStringCellValue()).ordinal() + 1)
-			.append("),");
+			.append(Arrays.asList(Site.values()).stream().filter(s -> s.getName().equals(row.getCell(0).getStringCellValue())).findFirst().get().ordinal())
+			.append(")");
+			if (siteTypeWorksheet.getRow(rowIndex + 1).getCell(0).getCellType() != Cell.CELL_TYPE_BLANK) { 
+				sb.append(",\n");
+			}
+			else {
+				sb.append(";");
+				break;
+			}
 		}
-		sb.deleteCharAt(sb.length() - 1).append(";");
 		return sb.toString();
 	}
 
