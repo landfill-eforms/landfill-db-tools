@@ -3,6 +3,7 @@ package org.lacitysan.landfill.dbtools.scriptgen;
 import java.util.Arrays;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.lacitysan.landfill.dbtools.scriptgen.constant.TableName;
@@ -86,13 +87,18 @@ public class SiteTypeScriptGen {
 				sb.append(rowIndex);
 				sb.append(", ");
 			}
-			sb.append("'" + row.getCell(2).toString() + "'")
+			Cell pointNameCell = row.getCell(2);
+			String pointName = pointNameCell.toString();
+			if (pointNameCell.getCellTypeEnum() == CellType.NUMERIC) {
+				pointName = String.valueOf((int)pointNameCell.getNumericCellValue());
+			}
+			sb.append("'" + pointName + "'")
 			.append(", ")
 			.append(Arrays.asList(MonitoringPointType.values()).stream().filter(t -> t.getName().equals(row.getCell(1).getStringCellValue())).findFirst().get().ordinal())
 			.append(", ")
 			.append(Arrays.asList(Site.values()).stream().filter(s -> s.getName().equals(row.getCell(0).getStringCellValue())).findFirst().get().ordinal())
 			.append(")");
-			if (siteTypeWorksheet.getRow(rowIndex + 1).getCell(0).getCellType() != Cell.CELL_TYPE_BLANK) { 
+			if (siteTypeWorksheet.getRow(rowIndex + 1).getCell(0).getCellTypeEnum() != CellType.BLANK) { 
 				sb.append(",\n");
 			}
 			else {
