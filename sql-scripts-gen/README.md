@@ -1,2 +1,2 @@
-# landfill-db-tools
-Tools for managing and generating scrips, etc., for the Landfill-eForms SQL database.
+# sql-scripts-gen
+Tool for generating scrips, etc., for the Landfill-eForms SQL database.
