@@ -1,2 +1,2 @@
 # landfill-tools
-A collections of internally developed tools used during the development of the Landfill e-Forms project.
+A collection of internally developed tools used in the development of the Landfill e-Forms project.
