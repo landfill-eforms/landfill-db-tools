@@ -1,2 +1,2 @@
-# landfill-db-tools
-Tools for managing and generating scrips, etc., for the Landfill-eForms SQL database.
+# landfill-tools
+A collections of internally developed tools used during the development of the Landfill e-Forms project.
