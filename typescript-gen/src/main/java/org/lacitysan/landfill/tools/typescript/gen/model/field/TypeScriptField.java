@@ -1,6 +1,6 @@
 package org.lacitysan.landfill.tools.typescript.gen.model.field;
 
-import org.lacitysan.landfill.tools.typescript.gen.model.clazz.TypeScriptType;
+import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
 
 /**
  * @author Alvin Quach
@@ -21,6 +21,6 @@ public abstract class TypeScriptField {
 		this.fieldName = fieldName;
 	}
 	
-	abstract public TypeScriptType getFieldType();
+	abstract public Type getFieldType();
 	
 }

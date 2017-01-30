@@ -5,9 +5,9 @@ repositories {
 }
 
 ext {
-
+	springBeansVersion = '4.3.6.RELEASE'
 }
 
 dependencies {
-
+	compile('org.springframework:spring-beans:' + springBeansVersion)
 }

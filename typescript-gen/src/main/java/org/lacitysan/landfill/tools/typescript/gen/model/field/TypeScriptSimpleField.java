@@ -1,23 +1,28 @@
 package org.lacitysan.landfill.tools.typescript.gen.model.field;
 
-import org.lacitysan.landfill.tools.typescript.gen.model.clazz.TypeScriptType;
+import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
 
 /**
  * @author Alvin Quach
  */
 public class TypeScriptSimpleField extends TypeScriptField {
 
-	private TypeScriptType fieldType;
+	private Type fieldType;
 	
 	public TypeScriptSimpleField(String fieldName) {
 		super(fieldName);
 	}
+	
+	public TypeScriptSimpleField(String fieldName, Type fieldType) {
+		super(fieldName);
+		this.fieldType = fieldType;
+	}
 
-	public TypeScriptType getFieldType() {
+	public Type getFieldType() {
 		return fieldType;
 	}
 
-	public void setFieldType(TypeScriptType fieldType) {
+	public void setFieldType(Type fieldType) {
 		this.fieldType = fieldType;
 	}
 	
