@@ -7,9 +7,11 @@ import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
  */
 public abstract class TypeScriptField {
 	
-	private String fieldName;
+	protected String fieldName;
+	
+	protected boolean readonly = false;
 
-	public TypeScriptField(String fieldName) {
+	protected TypeScriptField(String fieldName) {
 		this.fieldName = fieldName;
 	}
 	
@@ -21,6 +23,14 @@ public abstract class TypeScriptField {
 		this.fieldName = fieldName;
 	}
 	
+	public boolean isReadonly() {
+		return readonly;
+	}
+
+	public void setReadonly(boolean readonly) {
+		this.readonly = readonly;
+	}
+
 	abstract public Type getFieldType();
 	
 }

@@ -17,6 +17,12 @@ public class TypeScriptSimpleField extends TypeScriptField {
 		super(fieldName);
 		this.fieldType = fieldType;
 	}
+	
+	public TypeScriptSimpleField(String fieldName, Type fieldType, boolean readonly) {
+		super(fieldName);
+		this.fieldType = fieldType;
+		super.readonly = readonly;
+	}
 
 	public Type getFieldType() {
 		return fieldType;

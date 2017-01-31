@@ -40,7 +40,7 @@ public class TypeScriptEnumConstant implements Comparable<TypeScriptEnumConstant
 
 	@Override
 	public int compareTo(TypeScriptEnumConstant o) {
-		return o.getOrdinal() - ordinal;
+		return ordinal - o.getOrdinal();
 	}
 
 }

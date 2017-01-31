@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.lacitysan.landfill.lib.utils.StringUtils;
 import org.lacitysan.landfill.lib.utils.StringUtils.Capitalization;
@@ -16,9 +17,9 @@ import org.lacitysan.landfill.tools.typescript.gen.model.constant.TypeScriptEnum
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScirptObjectField;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptArrayField;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptEnumField;
+import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptField;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptSimpleField;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptClass;
-import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptComplexType;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptEnum;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptSimpleType;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptType;
@@ -29,7 +30,7 @@ import org.springframework.beans.BeanUtils;
  */
 public class TypeScriptGenUtils {
 	
-	public static TypeScriptClass processClass(Class<?> clazz, Collection<TypeScriptComplexType> generatedClasses) {
+	public static TypeScriptClass processClass(Class<?> clazz, Collection<TypeScriptClass> generatedClasses) {
 		TypeScriptType search = generatedClasses.stream().filter(g -> g.getClazz() == clazz).findFirst().orElse(null);
 		if (search != null) {
 			return (TypeScriptClass)search;
@@ -38,7 +39,7 @@ public class TypeScriptGenUtils {
 		TypeScriptClass result = new TypeScriptClass(clazz);
 		generatedClasses.add(result);
 		for (Field field : clazz.getDeclaredFields()) {
-			if (!containsGetter(field, clazz.getDeclaredMethods()) || !containsSetter(field, clazz.getDeclaredMethods())) {
+			if (!containsGetter(field, clazz.getMethods()) || !containsSetter(field, clazz.getMethods())) {
 				continue;
 			}
 			Type fieldType = TypeScriptGenUtils.getType(field.getType());
@@ -78,7 +79,7 @@ public class TypeScriptGenUtils {
 		return result;
 	}
 
-	public static TypeScriptEnum processEnum(Class<?> clazz, Collection<TypeScriptComplexType> generatedClasses) {
+	public static TypeScriptEnum processEnum(Class<?> clazz, Collection<TypeScriptClass> generatedClasses) {
 		TypeScriptType search = generatedClasses.stream().filter(g -> g.getClazz() == clazz).findFirst().orElse(null);
 		if (search != null) {
 			return (TypeScriptEnum)search;
@@ -89,9 +90,22 @@ public class TypeScriptGenUtils {
 		Map<String, Method> properties = new HashMap<>();
 		for (Field field : clazz.getDeclaredFields()) {
 			Method getter = findGetter(field, clazz.getMethods());
-			if (getter != null) {
-				properties.put(field.getName(), getter);
+			if (getter == null) {
+				continue;
 			}
+			Type fieldType = getType(field.getType());
+			if (fieldType == Type.BOOLEAN || fieldType == Type.NUMBER || fieldType == Type.STRING) {
+				result.getFields().add(new TypeScriptSimpleField(field.getName(), fieldType, true));
+			}
+			else if (fieldType == Type.ENUM) {
+				TypeScriptEnum proccessedEnum = processEnum(field.getType(), generatedClasses);
+				result.getDependencies().add(proccessedEnum);
+				result.getFields().add(new TypeScriptEnumField(field.getName(), proccessedEnum, true));
+			}
+			else {
+				continue;
+			}
+			properties.put(field.getName(), getter);
 		}
 		for (Object enumConstant : clazz.getEnumConstants()) {
 			TypeScriptEnumConstant constant = new TypeScriptEnumConstant();
@@ -169,6 +183,201 @@ public class TypeScriptGenUtils {
 
 		return null;
 
+	}
+	
+	private static String generateImportHeader(Class<?> clazz, Set<TypeScriptClass> dependencies) {
+		if (dependencies.isEmpty()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		for (TypeScriptClass dependency : dependencies) {
+			sb.append("import {")
+			.append(TypeScriptGenConfig.ADD_SPACES_TO_IMPORT ? " " : "")
+			.append(dependency.getClazz().getSimpleName())
+			.append(TypeScriptGenConfig.ADD_SPACES_TO_IMPORT ? " " : "")
+			.append("} from '")
+			.append(TypeScriptGenUtils.getRelativePath(clazz, dependency.getClazz()))
+			.append(TypeScriptGenUtils.getFilename(dependency))
+			.append("';\n");
+		}
+		sb.append("\n");
+		return sb.toString();
+	}
+
+	private static String generateClassComments(TypeScriptClass generatedClass) {
+		if (TypeScriptGenConfig.CLASS_COMMENT.length == 0) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append("/**\n");
+		for (String commentLine : TypeScriptGenConfig.CLASS_COMMENT) {
+			sb.append(" * ");
+			sb.append(commentLine
+					.replaceAll("%type", generatedClass.getType() == Type.ENUM ? "enum" : "class")
+					.replaceAll("%classname", generatedClass.getClazz().getSimpleName())
+					.replaceAll("%filename", TypeScriptGenUtils.getFilename(generatedClass)));
+			sb.append("\n");
+		}
+		sb.append(" */\n");
+		return sb.toString();
+	}
+
+	private static String generateExportDeclaration(TypeScriptClass generatedClass) {
+		return "export class " 
+				+ generatedClass.getClazz().getSimpleName() 
+				+ " {\n";
+	}
+
+	private static String generateFields(TypeScriptClass generatedClass) {
+		StringBuilder sb = new StringBuilder();
+		for (TypeScriptField field : generatedClass.getFields()) {
+			sb.append("\t")
+			.append(field.isReadonly() ? "readonly " : "")
+			.append(field.getFieldName())
+			.append(":");
+			if (field instanceof TypeScirptObjectField) {
+				sb.append(((TypeScirptObjectField)field).getClassType().getClazz().getSimpleName());
+			}
+			else if (field instanceof TypeScriptEnumField) {
+				sb.append(((TypeScriptEnumField)field).getEnumType().getClazz().getSimpleName());
+			}
+			else if (field instanceof TypeScriptArrayField) {
+				TypeScriptType genericType = ((TypeScriptArrayField)field).getGenericType();
+				if (genericType.getType() == Type.OBJECT || genericType.getType() == Type.ENUM) {
+					sb.append(genericType.getClazz().getSimpleName());
+				}
+				else {
+					sb.append(genericType.getType().name().toLowerCase());
+				}
+				sb.append("[]");
+			}
+			else {
+				sb.append(field.getFieldType().name().toLowerCase());
+			}
+			sb.append(";\n");
+		}
+		return sb.toString();
+	}
+	
+	private static String generateEnumConstants(TypeScriptEnum generatedClass) {
+		StringBuilder sb = new StringBuilder();
+		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
+			sb.append("\tstatic readonly ")
+			.append(constant.getName())
+			.append(":")
+			.append(generatedClass.getClazz().getSimpleName())
+			.append(" = new ")
+			.append(generatedClass.getClazz().getSimpleName())
+			.append("(")
+			.append(constant.getOrdinal());
+			generatedClass.getFields().stream().map(field -> field.getFieldName()).forEach(propertyName -> {
+				Object propertyValue = constant.getProperties().get(propertyName);
+				if (propertyValue == null) {
+					sb.append(", null");					
+					return;
+				}
+				Type propertyType = TypeScriptGenUtils.getType(propertyValue.getClass());
+				if (propertyType == Type.STRING) {
+					sb.append(", ")
+					.append("\"")
+					.append(propertyValue)
+					.append("\"");
+				}
+				else if (propertyType == Type.BOOLEAN || propertyType == Type.NUMBER) {
+					sb.append(", ")
+					.append(propertyValue);
+				}
+				else if (propertyType == Type.ENUM) {
+					sb.append(", ")
+					.append(propertyValue.getClass().getSimpleName())
+					.append(".")
+					.append(((Enum)propertyValue).name());
+				}
+			});
+			sb.append(");\n");
+		}
+		sb.append("\n");
+		return sb.toString();
+	}
+	
+	public static String generateClass(TypeScriptClass generatedClass) {
+
+		StringBuilder sb = new StringBuilder();
+
+		// Imported dependencies declarations.
+		sb.append(generateImportHeader(generatedClass.getClazz(), generatedClass.getDependencies()))
+
+		// Auto-generated class comments.
+		.append(generateClassComments(generatedClass))
+
+		// Export class declaration.
+		.append(generateExportDeclaration(generatedClass))
+
+		// Fields
+		.append(generateFields(generatedClass))
+
+		// Closing bracket
+		.append("}");
+
+		return sb.toString();
+	}
+
+	public static String generateEnum(TypeScriptEnum generatedClass) {
+
+		StringBuilder sb = new StringBuilder();
+
+		// Imported dependencies declarations.
+		sb.append(generateImportHeader(generatedClass.getClazz(), generatedClass.getDependencies()))
+
+		// Auto-generated class comments.
+		.append(generateClassComments(generatedClass))
+
+		// Export class declaration.
+		.append(generateExportDeclaration(generatedClass))
+		.append("\n")
+
+		// Enum constants
+		.append(generateEnumConstants(generatedClass));
+
+		// Enum property fields
+		String fields = generateFields(generatedClass);
+		sb.append("\treadonly ordinal:number;\n")
+		.append(fields)
+		.append("\n");
+		
+		// Constructor
+		sb.append("\tprivate constructor(ordinal:number");
+		for (String param : fields.replaceAll("\t", "").replaceAll("readonly ", "").split(";\n")) {
+			sb.append(", ")
+			.append(param);
+		}
+		sb.append(") {\n\t\tthis.ordinal = ordinal;\n");
+		for (TypeScriptField field : generatedClass.getFields()) {
+			sb.append("\t\tthis.")
+			.append(field.getFieldName())
+			.append(" = ")
+			.append(field.getFieldName())
+			.append(";\n");
+		}
+		sb.append("\t}\n")
+		
+		// Values
+		.append("\n\tstatic readonly values:")
+		.append(generatedClass.getClazz().getSimpleName())
+		.append("[] = {\n");
+		int i = 0;
+		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
+			sb.append(i++ == 0 ? "\t\t" : ",\n\t\t")
+			.append(generatedClass.getClazz().getSimpleName())
+			.append(".")
+			.append(constant.getName());
+		}
+		sb.append("\n\t}");
+		
+		// Closing bracket
+		sb.append("\n\n}");
+
+		return sb.toString();
 	}
 
 	/**
@@ -259,8 +468,8 @@ public class TypeScriptGenUtils {
 	
 	public static String getRelativePath(Class<?> from, Class<?> to) {
 		StringBuilder sb = new StringBuilder();
-		String[] fromPath = from.getPackage().getName().split("\\.");
-		String[] toPath = to.getPackage().getName().split("\\.");
+		String[] fromPath = from.getPackage().getName().replaceFirst(TypeScriptGenConfig.BASE_PACKAGE + ".", "").split("\\.");
+		String[] toPath = to.getPackage().getName().replaceFirst(TypeScriptGenConfig.BASE_PACKAGE + ".", "").split("\\.");
 		int i = 0;
 		while (i < Math.min(fromPath.length, toPath.length)) {
 			if (!fromPath[i].equals(toPath[i])) {
@@ -288,7 +497,7 @@ public class TypeScriptGenUtils {
 	 * Generates a TypeScript filename based on the class name of the generated class type.
 	 * Does not include the '.ts' extension at the end.
 	 */
-	public static String getFilename(TypeScriptComplexType type) {
+	public static String getFilename(TypeScriptClass type) {
 		String result = StringUtils.camelToHyphenDelimited(type.getClazz().getSimpleName(), Capitalization.ALL_LOWER);
 		if (type instanceof TypeScriptClass) {
 			return result + ".class";
@@ -302,7 +511,7 @@ public class TypeScriptGenUtils {
 	/**
 	 * Generates a TypeScript filename based on the class name of the generated class type, including the '.ts' file extension.
 	 */
-	public static String getFilenameWithExtension(TypeScriptComplexType type) {
+	public static String getFilenameWithExtension(TypeScriptClass type) {
 		return getFilename(type) + ".ts";
 	}
 	

@@ -7,9 +7,9 @@ import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
  */
 public abstract class TypeScriptType {
 	
-	private Type type;
+	protected Type type;
 	
-	public TypeScriptType(Type type) {
+	protected TypeScriptType(Type type) {
 		this.type = type;
 	}
 

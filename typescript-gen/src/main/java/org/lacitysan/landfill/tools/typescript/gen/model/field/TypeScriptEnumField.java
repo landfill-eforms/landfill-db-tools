@@ -18,6 +18,12 @@ public class TypeScriptEnumField extends TypeScriptField {
 		super(fieldName);
 		this.enumType = enumType;
 	}
+	
+	public TypeScriptEnumField(String fieldName, TypeScriptEnum enumType, boolean readonly) {
+		super(fieldName);
+		this.enumType = enumType;
+		super.readonly = readonly;
+	}
 
 	public TypeScriptEnum getEnumType() {
 		return enumType;
