@@ -15,8 +15,13 @@ import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptEnum;
  * @author Alvin Quach
  */
 public class TypeScriptGen {
+	
+	private static String baseDirectory = TypeScriptGenConfig.BASE_DIRECTORY;
 
 	public static void main(String[] args) {
+		if (args.length > 0) {
+			baseDirectory = args[0] + File.separator;
+		}
 		Set<TypeScriptClass> generatedClasses = new HashSet<>();
 		for (Class<?> clazz : TypeScriptGenConfig.BASE_CLASSES) {
 			if (!generatedClasses.stream().anyMatch(c -> c.getClazz() == clazz)) {
@@ -34,14 +39,14 @@ public class TypeScriptGen {
 	}
 	
 	private static void writeToFile(String contents, TypeScriptClass type) {
-		String filename = TypeScriptGenConfig.BASE_DIRECTORY;
+		String filename = baseDirectory;
 		String[] path = type.getClazz().getPackage().getName().replaceFirst(TypeScriptGenConfig.BASE_PACKAGE + ".", "").split("\\.");
 		for (String pathSegment : path) {
 			filename += pathSegment + File.separator;
 		}
 		new File(filename).mkdirs();
 		filename += TypeScriptGenUtils.getFilenameWithExtension(type);
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename, false))) {
 			bw.write(contents);
 		} catch (IOException e) {
 			e.printStackTrace();

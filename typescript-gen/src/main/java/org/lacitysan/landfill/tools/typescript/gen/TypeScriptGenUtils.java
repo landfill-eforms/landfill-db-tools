@@ -364,7 +364,7 @@ public class TypeScriptGenUtils {
 		// Values
 		.append("\n\tstatic readonly values:")
 		.append(generatedClass.getClazz().getSimpleName())
-		.append("[] = {\n");
+		.append("[] = [\n");
 		int i = 0;
 		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
 			sb.append(i++ == 0 ? "\t\t" : ",\n\t\t")
@@ -372,7 +372,7 @@ public class TypeScriptGenUtils {
 			.append(".")
 			.append(constant.getName());
 		}
-		sb.append("\n\t}");
+		sb.append("\n\t];");
 		
 		// Closing bracket
 		sb.append("\n\n}");
@@ -499,11 +499,11 @@ public class TypeScriptGenUtils {
 	 */
 	public static String getFilename(TypeScriptClass type) {
 		String result = StringUtils.camelToHyphenDelimited(type.getClazz().getSimpleName(), Capitalization.ALL_LOWER);
-		if (type instanceof TypeScriptClass) {
-			return result + ".class";
-		}
-		else if (type instanceof TypeScriptEnum) {
+		if (type instanceof TypeScriptEnum) {
 			return result + ".enum";
+		}
+		else if (type instanceof TypeScriptClass) {
+			return result + ".class";
 		}
 		return result;
 	}
