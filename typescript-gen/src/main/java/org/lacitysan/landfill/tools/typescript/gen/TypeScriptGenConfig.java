@@ -19,9 +19,15 @@ public class TypeScriptGenConfig {
 	public static final String BASE_PACKAGE = "org.lacitysan.landfill";
 
 	public static final Class<?>[] BASE_CLASSES = new Class<?>[] {
+		org.lacitysan.landfill.server.persistence.entity.IMEData.class,
+		org.lacitysan.landfill.server.persistence.entity.IMENumber.class,
+		org.lacitysan.landfill.server.persistence.entity.IMERepairData.class,
+		org.lacitysan.landfill.server.persistence.entity.InstantaneousData.class,
+		org.lacitysan.landfill.server.persistence.entity.Instrument.class,
+		org.lacitysan.landfill.server.persistence.entity.MonitoringPoint.class,
 		org.lacitysan.landfill.server.persistence.entity.User.class,
 		org.lacitysan.landfill.server.persistence.entity.UserGroup.class,
-		org.lacitysan.landfill.server.persistence.entity.MonitoringPoint.class
+		org.lacitysan.landfill.server.persistence.entity.UserProfile.class
 	};
 
 }
