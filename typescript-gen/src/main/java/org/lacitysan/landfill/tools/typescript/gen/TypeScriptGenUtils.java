@@ -89,7 +89,7 @@ public class TypeScriptGenUtils {
 		generatedClasses.add(result);
 		Map<String, Method> properties = new HashMap<>();
 		for (Field field : clazz.getDeclaredFields()) {
-			if (field.getName().equals("name")) {
+			if (field.getName().equals("constantName") || field.getName().equals("ordinal")) {
 				continue;
 			}
 			Method getter = findGetter(field, clazz.getMethods());
@@ -354,7 +354,7 @@ public class TypeScriptGenUtils {
 			sb.append("\treadonly ordinal:number;\n");
 		}
 		if (includeName) {
-			sb.append("\treadonly name:string;\n");
+			sb.append("\treadonly constantName:string;\n");
 		}
 		String fields = generateFields(generatedClass);
 		sb.append(fields)
@@ -367,7 +367,7 @@ public class TypeScriptGenUtils {
 			.append(includeName || !generatedClass.getFields().isEmpty() ? ", " : "");
 		}
 		if (includeName) {
-			sb.append("name:string")
+			sb.append("constantName:string")
 			.append(!generatedClass.getFields().isEmpty() ? ", " : "");
 		}
 		String[] params = fields.replaceAll("\t", "").replaceAll("readonly ", "").split(";\n");
@@ -380,7 +380,7 @@ public class TypeScriptGenUtils {
 			sb.append("\t\tthis.ordinal = ordinal;\n");
 		}
 		if (includeName) {
-			sb.append("\t\tthis.name = name;\n");
+			sb.append("\t\tthis.constantName = constantName;\n");
 		}
 		for (TypeScriptField field : generatedClass.getFields()) {
 			sb.append("\t\tthis.")
