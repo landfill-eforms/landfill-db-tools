@@ -1,0 +1,16 @@
+apply plugin: 'java'
+
+repositories {
+    jcenter()
+}
+
+ext {
+	poiVersion = '3.15'
+	codemodelVersion = '2.6'
+}
+
+dependencies {
+	compile('org.apache.poi:poi:' + poiVersion)
+	compile('org.apache.poi:poi-ooxml:' + poiVersion)
+	//compile('com.sun.codemodel:codemodel:' + codemodelVersion)
+}
