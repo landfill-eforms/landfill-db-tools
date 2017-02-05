@@ -30,7 +30,7 @@ public class TypeScriptGen {
 		}
 		for (TypeScriptClass generatedClass : generatedClasses) {
 			if (generatedClass instanceof TypeScriptEnum) {
-				writeToFile(TypeScriptGenUtils.generateEnum((TypeScriptEnum)generatedClass), generatedClass);
+				writeToFile(TypeScriptGenUtils.generateEnum((TypeScriptEnum)generatedClass, true, true), generatedClass);
 			}
 			else if (generatedClass instanceof TypeScriptClass) {
 				writeToFile(TypeScriptGenUtils.generateClass((TypeScriptClass)generatedClass), generatedClass);

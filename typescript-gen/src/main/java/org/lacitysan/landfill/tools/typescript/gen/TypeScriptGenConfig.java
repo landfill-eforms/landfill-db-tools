@@ -27,7 +27,7 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.persistence.entity.MonitoringPoint.class,
 		org.lacitysan.landfill.server.persistence.entity.User.class,
 		org.lacitysan.landfill.server.persistence.entity.UserGroup.class,
-		org.lacitysan.landfill.server.persistence.entity.UserProfile.class
+		org.lacitysan.landfill.server.persistence.entity.Person.class
 	};
 
 }

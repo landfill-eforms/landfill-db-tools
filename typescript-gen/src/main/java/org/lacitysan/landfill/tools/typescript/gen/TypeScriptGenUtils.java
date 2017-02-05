@@ -89,6 +89,9 @@ public class TypeScriptGenUtils {
 		generatedClasses.add(result);
 		Map<String, Method> properties = new HashMap<>();
 		for (Field field : clazz.getDeclaredFields()) {
+			if (field.getName().equals("name")) {
+				continue;
+			}
 			Method getter = findGetter(field, clazz.getMethods());
 			if (getter == null) {
 				continue;
@@ -259,7 +262,7 @@ public class TypeScriptGenUtils {
 		return sb.toString();
 	}
 	
-	private static String generateEnumConstants(TypeScriptEnum generatedClass) {
+	private static String generateEnumConstants(TypeScriptEnum generatedClass, boolean includeOrdinal, boolean includeName) {
 		StringBuilder sb = new StringBuilder();
 		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
 			sb.append("\tstatic readonly ")
@@ -268,32 +271,39 @@ public class TypeScriptGenUtils {
 			.append(generatedClass.getClazz().getSimpleName())
 			.append(" = new ")
 			.append(generatedClass.getClazz().getSimpleName())
-			.append("(")
-			.append(constant.getOrdinal());
-			generatedClass.getFields().stream().map(field -> field.getFieldName()).forEach(propertyName -> {
-				Object propertyValue = constant.getProperties().get(propertyName);
+			.append("(");
+			if (includeOrdinal) {
+				sb.append(constant.getOrdinal())
+				.append(", ");
+			}
+			if (includeName) {
+				sb.append("\"")
+				.append(constant.getName())
+				.append("\", ");
+			}
+			String[] propertyNames = generatedClass.getFields().stream().map(field -> field.getFieldName()).toArray(size -> new String[size]);
+			for (int i = 0; i < propertyNames.length; i++) {
+				Object propertyValue = constant.getProperties().get(propertyNames[i]);
+				sb.append(i > 0 ? ", " : "");
 				if (propertyValue == null) {
-					sb.append(", null");					
-					return;
+					sb.append("null");					
+					continue;
 				}
 				Type propertyType = TypeScriptGenUtils.getType(propertyValue.getClass());
 				if (propertyType == Type.STRING) {
-					sb.append(", ")
-					.append("\"")
+					sb.append("\"")
 					.append(propertyValue)
 					.append("\"");
 				}
 				else if (propertyType == Type.BOOLEAN || propertyType == Type.NUMBER) {
-					sb.append(", ")
-					.append(propertyValue);
+					sb.append(propertyValue);
 				}
 				else if (propertyType == Type.ENUM) {
-					sb.append(", ")
-					.append(propertyValue.getClass().getSimpleName())
+					sb.append(propertyValue.getClass().getSimpleName())
 					.append(".")
 					.append(((Enum)propertyValue).name());
 				}
-			});
+			}
 			sb.append(");\n");
 		}
 		sb.append("\n");
@@ -322,7 +332,7 @@ public class TypeScriptGenUtils {
 		return sb.toString();
 	}
 
-	public static String generateEnum(TypeScriptEnum generatedClass) {
+	public static String generateEnum(TypeScriptEnum generatedClass, boolean includeOrdinal, boolean includeName) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -337,21 +347,41 @@ public class TypeScriptGenUtils {
 		.append("\n")
 
 		// Enum constants
-		.append(generateEnumConstants(generatedClass));
+		.append(generateEnumConstants(generatedClass, includeOrdinal, includeName));
 
 		// Enum property fields
+		if (includeOrdinal) {
+			sb.append("\treadonly ordinal:number;\n");
+		}
+		if (includeName) {
+			sb.append("\treadonly name:string;\n");
+		}
 		String fields = generateFields(generatedClass);
-		sb.append("\treadonly ordinal:number;\n")
-		.append(fields)
+		sb.append(fields)
 		.append("\n");
 		
 		// Constructor
-		sb.append("\tprivate constructor(ordinal:number");
-		for (String param : fields.replaceAll("\t", "").replaceAll("readonly ", "").split(";\n")) {
-			sb.append(", ")
-			.append(param);
+		sb.append("\tprivate constructor(");
+		if (includeOrdinal) {
+			sb.append("ordinal:number")
+			.append(includeName || !generatedClass.getFields().isEmpty() ? ", " : "");
 		}
-		sb.append(") {\n\t\tthis.ordinal = ordinal;\n");
+		if (includeName) {
+			sb.append("name:string")
+			.append(!generatedClass.getFields().isEmpty() ? ", " : "");
+		}
+		String[] params = fields.replaceAll("\t", "").replaceAll("readonly ", "").split(";\n");
+		for (int i = 0; i < params.length; i++) {
+			sb.append(i > 0 ? ", " : "")
+			.append(params[i]);
+		}
+		sb.append(") {\n");
+		if (includeOrdinal) {
+			sb.append("\t\tthis.ordinal = ordinal;\n");
+		}
+		if (includeName) {
+			sb.append("\t\tthis.name = name;\n");
+		}
 		for (TypeScriptField field : generatedClass.getFields()) {
 			sb.append("\t\tthis.")
 			.append(field.getFieldName())
@@ -419,7 +449,7 @@ public class TypeScriptGenUtils {
 			if (method.getReturnType() != field.getType()) {
 				continue;
 			}
-			if (!(getType(field.getType()) == Type.BOOLEAN && method.getName().startsWith("is")) && !method.getName().startsWith("get")) {
+			if (!(method.getName().startsWith("get") || (getType(field.getType()) == Type.BOOLEAN && method.getName().startsWith("is")))) {
 				continue;
 			}
 			if (!method.getName().endsWith(field.getName().substring(1))) {
