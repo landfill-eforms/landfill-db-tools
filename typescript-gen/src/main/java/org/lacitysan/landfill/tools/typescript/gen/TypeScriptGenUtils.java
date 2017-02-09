@@ -75,6 +75,9 @@ public class TypeScriptGenUtils {
 				result.getDependencies().add(proccessedClass);
 				result.getFields().add(new TypeScirptObjectField(field.getName(), proccessedClass));
 			}
+			else if (fieldType == Type.ANY) {
+				result.getFields().add(new TypeScriptSimpleField(field.getName(), fieldType));
+			}
 		}
 		return result;
 	}
@@ -176,7 +179,7 @@ public class TypeScriptGenUtils {
 
 		// Maps
 		else if (Map.class.isAssignableFrom(clazz)) {
-			// Currently not supported
+			return Type.ANY;
 		}
 
 		// Objects. Will only consider explicitly declared classes and classes in the base package, both of which are defined in TypeScriptGenConfig.
@@ -392,17 +395,19 @@ public class TypeScriptGenUtils {
 		sb.append("\t}\n")
 		
 		// Values
-		.append("\n\tstatic readonly values:")
+		.append("\n\tstatic values():")
 		.append(generatedClass.getClazz().getSimpleName())
-		.append("[] = [\n");
+		.append("[] {")
+		.append("\n\t\treturn [\n");
 		int i = 0;
 		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
-			sb.append(i++ == 0 ? "\t\t" : ",\n\t\t")
+			sb.append(i++ == 0 ? "\t\t\t" : ",\n\t\t\t")
 			.append(generatedClass.getClazz().getSimpleName())
 			.append(".")
 			.append(constant.getName());
 		}
-		sb.append("\n\t];");
+		sb.append("\n\t\t];")
+		.append("\n\t}");
 		
 		// Closing bracket
 		sb.append("\n\n}");

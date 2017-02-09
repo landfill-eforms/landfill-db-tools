@@ -11,6 +11,7 @@ public enum Type {
 	ARRAY,
 	TUPLE,
 	ENUM,
-	OBJECT
+	OBJECT,
+	ANY
 	
 }

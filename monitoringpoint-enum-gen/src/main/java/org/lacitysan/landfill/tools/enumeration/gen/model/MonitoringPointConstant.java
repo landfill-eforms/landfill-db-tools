@@ -53,6 +53,9 @@ public class MonitoringPointConstant implements Comparable<MonitoringPointConsta
 		if (site != o.getSite()) {
 			return site.getName().compareTo(o.getSite().getName());
 		}
+		if (name.matches("^-?\\d+$") && o.getName().matches("^-?\\d+$")) {
+			return Integer.parseInt(name) - Integer.parseInt(o.getName());
+		}
 		return name.compareTo(o.getName());
 	}
 
