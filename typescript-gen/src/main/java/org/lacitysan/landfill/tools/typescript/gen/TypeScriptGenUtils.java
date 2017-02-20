@@ -275,16 +275,17 @@ public class TypeScriptGenUtils {
 			.append(" = new ")
 			.append(generatedClass.getClazz().getSimpleName())
 			.append("(");
+			String[] propertyNames = generatedClass.getFields().stream().map(field -> field.getFieldName()).toArray(size -> new String[size]);
 			if (includeOrdinal) {
 				sb.append(constant.getOrdinal())
-				.append(", ");
+				.append(includeName || propertyNames.length != 0 ? ", " : "");
 			}
 			if (includeName) {
 				sb.append("\"")
 				.append(constant.getName())
-				.append("\", ");
+				.append("\"")
+				.append(propertyNames.length != 0 ? ", " : "");
 			}
-			String[] propertyNames = generatedClass.getFields().stream().map(field -> field.getFieldName()).toArray(size -> new String[size]);
 			for (int i = 0; i < propertyNames.length; i++) {
 				Object propertyValue = constant.getProperties().get(propertyNames[i]);
 				sb.append(i > 0 ? ", " : "");
