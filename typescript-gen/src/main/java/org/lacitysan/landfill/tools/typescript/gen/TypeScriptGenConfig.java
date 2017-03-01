@@ -24,12 +24,12 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.IMERepairData.class,
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.InstantaneousData.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.Instrument.class,
+		org.lacitysan.landfill.server.persistence.entity.instrument.InstrumentType.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedDataSet.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedIMEData.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedInstantaneousData.class,
 		org.lacitysan.landfill.server.persistence.entity.user.User.class,
-		org.lacitysan.landfill.server.persistence.entity.user.UserGroup.class,
-		org.lacitysan.landfill.server.persistence.entity.user.Person.class
+		org.lacitysan.landfill.server.persistence.entity.user.UserGroup.class
 	};
 
 }
