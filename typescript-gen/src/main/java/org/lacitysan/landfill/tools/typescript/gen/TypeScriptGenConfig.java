@@ -23,6 +23,7 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.IMENumber.class,
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.IMERepairData.class,
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.InstantaneousData.class,
+		org.lacitysan.landfill.server.persistence.entity.instantaneous.WarmspotData.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.Instrument.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.InstrumentType.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedDataSet.class,

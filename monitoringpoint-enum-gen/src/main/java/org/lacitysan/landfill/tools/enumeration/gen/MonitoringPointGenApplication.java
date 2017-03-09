@@ -14,8 +14,8 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.lacitysan.landfill.server.model.MonitoringPointType;
-import org.lacitysan.landfill.server.model.Site;
+import org.lacitysan.landfill.server.persistence.enums.MonitoringPointType;
+import org.lacitysan.landfill.server.persistence.enums.Site;
 import org.lacitysan.landfill.tools.enumeration.gen.model.MonitoringPointConstant;
 
 public class MonitoringPointGenApplication {
