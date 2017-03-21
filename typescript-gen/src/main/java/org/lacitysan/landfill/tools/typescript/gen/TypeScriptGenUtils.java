@@ -305,7 +305,7 @@ public class TypeScriptGenUtils {
 				else if (propertyType == Type.ENUM) {
 					sb.append(propertyValue.getClass().getSimpleName())
 					.append(".")
-					.append(((Enum)propertyValue).name());
+					.append(((Enum<?>)propertyValue).name());
 				}
 			}
 			sb.append(");\n");
