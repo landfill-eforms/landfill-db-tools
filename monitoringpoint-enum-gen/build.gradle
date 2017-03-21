@@ -5,7 +5,7 @@ repositories {
 }
 
 ext {
-	poiVersion = '3.15'
+	poiVersion = '3.16-beta2'
 	codemodelVersion = '2.6'
 }
 
