@@ -1,4 +1,4 @@
-package org.lacitysan.landfill.tools.enumeration.gen;
+package org.lacitysan.landfill.tools.enumeration.gen.monitoringpoint;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -14,9 +14,10 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.lacitysan.landfill.server.persistence.enums.MonitoringPoint;
 import org.lacitysan.landfill.server.persistence.enums.MonitoringPointType;
 import org.lacitysan.landfill.server.persistence.enums.Site;
-import org.lacitysan.landfill.tools.enumeration.gen.model.MonitoringPointConstant;
+import org.lacitysan.landfill.tools.enumeration.gen.monitoringpoint.model.MonitoringPointConstant;
 
 /**
  * @author Alvin Quach
@@ -24,10 +25,10 @@ import org.lacitysan.landfill.tools.enumeration.gen.model.MonitoringPointConstan
 public class MonitoringPointGenApplication {
 	
 	/** The package of the generated enum. This is set to the same package as the Site enum. */
-	private static final String PACKAGE = Site.class.getPackage().getName();
+	private static final String PACKAGE = MonitoringPoint.class.getPackage().getName();
 	
 	/** The name of the generated enum. */
-	private static final String CLASS_NAME = "MonitoringPoint";
+	private static final String CLASS_NAME = MonitoringPoint.class.getSimpleName();
 	
 	/** The base output path of the generate enum class. Set this to the <code>src/main/java</code> directory of the server project. */
 	private static final String OUTPUT_BASE_PATH = "D:\\Eclipse Workspaces\\Landfill-eForms\\landfill-web-app\\server\\src\\main\\java";
