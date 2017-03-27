@@ -8,10 +8,10 @@ import org.lacitysan.landfill.server.persistence.enums.Site;
  */
 public class MonitoringPointConstant implements Comparable<MonitoringPointConstant> {
 	
-	String constantName;
-	String name;
-	Site site;
-	MonitoringPointType type;
+	private String constantName;
+	private String name;
+	private Site site;
+	private MonitoringPointType type;
 	
 	public MonitoringPointConstant(String constantName, String name, Site site, MonitoringPointType type) {
 		this.constantName = constantName;
@@ -23,26 +23,14 @@ public class MonitoringPointConstant implements Comparable<MonitoringPointConsta
 	public String getConstantName() {
 		return constantName;
 	}
-	public void setConstantName(String constantName) {
-		this.constantName = constantName;
-	}
 	public String getName() {
 		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
 	}
 	public Site getSite() {
 		return site;
 	}
-	public void setSite(Site site) {
-		this.site = site;
-	}
 	public MonitoringPointType getType() {
 		return type;
-	}
-	public void setType(MonitoringPointType type) {
-		this.type = type;
 	}
 
 	@Override

@@ -24,7 +24,7 @@ import org.lacitysan.landfill.tools.enumeration.gen.monitoringpoint.model.Monito
  */
 public class MonitoringPointGenApplication {
 	
-	/** The package of the generated enum. This is set to the same package as the Site enum. */
+	/** The package of the generated enum. */
 	private static final String PACKAGE = MonitoringPoint.class.getPackage().getName();
 	
 	/** The name of the generated enum. */
@@ -112,6 +112,8 @@ public class MonitoringPointGenApplication {
 		// Enum constants
 		int i = 1;
 		for (MonitoringPointConstant constant : constants) {
+			
+			// Enum constant declaration
 			sb.append("\n\t")
 			.append(constant.getConstantName());
 			
