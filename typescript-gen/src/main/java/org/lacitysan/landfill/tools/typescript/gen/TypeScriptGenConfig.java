@@ -32,5 +32,10 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.persistence.entity.user.User.class,
 		org.lacitysan.landfill.server.persistence.entity.user.UserGroup.class
 	};
+	
+	/** Classes that will include the temporary AoT compile fix. Remove when the fix is not longer necessary. */
+	public static final Class<?>[] AOT_CLASSES = new Class<?>[] {
+		org.lacitysan.landfill.server.persistence.enums.UserPermission.class
+	};
 
 }

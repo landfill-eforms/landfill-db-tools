@@ -183,7 +183,7 @@ public class TypeScriptGenUtils {
 		}
 
 		// Objects. Will only consider explicitly declared classes and classes in the base package, both of which are defined in TypeScriptGenConfig.
-		else if (baseClassesContains(clazz) || clazz.getName().startsWith(TypeScriptGenConfig.BASE_PACKAGE)){
+		else if (containsClass(TypeScriptGenConfig.BASE_CLASSES, clazz) || clazz.getName().startsWith(TypeScriptGenConfig.BASE_PACKAGE)){
 			return Type.OBJECT;
 		}
 
@@ -412,17 +412,41 @@ public class TypeScriptGenUtils {
 		
 		// Closing bracket
 		sb.append("\n\n}");
+		
+		// Ahead-of-Time (AoT) compile fix. 
+		// This is a temporary fix for an issue with angular-cli's AoT compilation. 
+		// Remove when the fix is not longer necessary.
+		if (containsClass(TypeScriptGenConfig.AOT_CLASSES, generatedClass.getClazz())) {
+			sb.append("\n\n")
+			.append("/** Temporary fix for an issue with angular-cli's Ahead-of-Time (AoT) compilation. */")
+			.append("\n")
+			.append("export const AOT")
+			.append(generatedClass.getClazz().getSimpleName())
+			.append(" = {\n");
+			i = 0;
+			for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
+				sb.append(i++ == 0 ? "\t" : ",\n\t")
+				.append(constant.getName())
+				.append(": ")
+				.append(generatedClass.getClazz().getSimpleName())
+				.append("[\"")
+				.append(constant.getName())
+				.append("\"]");
+			}
+			sb.append("\n}");
+		}
 
 		return sb.toString();
 	}
 
 	/**
-	 * Checks whether the base classes defined in <code>TypeScriptGenConfig</code> contains the given class.
+	 * Checks whether an array of classes contains the given class.
+	 * @param classes
 	 * @param clazz
 	 * @return
 	 */
-	public static boolean baseClassesContains(Class<?> clazz) {
-		for (Class<?> clz : TypeScriptGenConfig.BASE_CLASSES) {
+	public static boolean containsClass(Class<?>[] classes, Class<?> clazz) {
+		for (Class<?> clz : classes) {
 			if (clz == clazz) {
 				return true;
 			}
