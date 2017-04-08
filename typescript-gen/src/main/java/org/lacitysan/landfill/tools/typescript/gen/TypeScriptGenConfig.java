@@ -19,6 +19,7 @@ public class TypeScriptGenConfig {
 	public static final String BASE_PACKAGE = "org.lacitysan.landfill";
 
 	public static final Class<?>[] BASE_CLASSES = new Class<?>[] {
+		org.lacitysan.landfill.server.persistence.entity.email.EmailRecipient.class,
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.ImeData.class,
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.ImeNumber.class,
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.ImeRepairData.class,
@@ -26,6 +27,14 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.persistence.entity.instantaneous.WarmspotData.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.Instrument.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.InstrumentType.class,
+		org.lacitysan.landfill.server.persistence.entity.integrated.IntegratedData.class,
+		org.lacitysan.landfill.server.persistence.entity.integrated.IseData.class,
+		org.lacitysan.landfill.server.persistence.entity.integrated.IseNumber.class,
+		org.lacitysan.landfill.server.persistence.entity.integrated.IseRepairData.class,
+		org.lacitysan.landfill.server.persistence.entity.probe.ProbeData.class,
+		org.lacitysan.landfill.server.persistence.entity.scheduled.Schedule.class,
+		org.lacitysan.landfill.server.persistence.entity.scheduled.ScheduledNotification.class,
+		org.lacitysan.landfill.server.persistence.entity.scheduled.ScheduledReport.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedDataSet.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedImeData.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedInstantaneousData.class,

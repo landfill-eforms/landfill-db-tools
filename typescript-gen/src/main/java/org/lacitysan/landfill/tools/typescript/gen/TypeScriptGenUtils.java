@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.lacitysan.landfill.lib.utils.StringUtils;
-import org.lacitysan.landfill.lib.utils.StringUtils.Capitalization;
+import org.lacitysan.landfill.server.util.StringUtils;
+import org.lacitysan.landfill.server.util.StringUtils.Capitalization;
 import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
 import org.lacitysan.landfill.tools.typescript.gen.model.constant.TypeScriptEnumConstant;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScirptObjectField;
@@ -24,6 +24,9 @@ import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptEnum;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptSimpleType;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptType;
 import org.springframework.beans.BeanUtils;
+import org.springframework.core.annotation.AnnotationUtils;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @author Alvin Quach
@@ -38,7 +41,15 @@ public class TypeScriptGenUtils {
 		System.out.println("Processing class: " + clazz.getName());
 		TypeScriptClass result = new TypeScriptClass(clazz);
 		generatedClasses.add(result);
+		Class<?> superclass = clazz.getSuperclass();
+		if (superclass != null && superclass != Object.class) {
+			result.setSuperclazz(superclass);
+			result.getDependencies().add(processClass(superclass, generatedClasses));
+		}
 		for (Field field : clazz.getDeclaredFields()) {
+			if (AnnotationUtils.findAnnotation(field, JsonIgnore.class) != null) {
+				continue;
+			}
 			if (!containsGetter(field, clazz.getMethods()) || !containsSetter(field, clazz.getMethods())) {
 				continue;
 			}
@@ -92,6 +103,9 @@ public class TypeScriptGenUtils {
 		generatedClasses.add(result);
 		Map<String, Method> properties = new HashMap<>();
 		for (Field field : clazz.getDeclaredFields()) {
+			if (AnnotationUtils.findAnnotation(field, JsonIgnore.class) != null) {
+				continue;
+			}
 			if (field.getName().equals("constantName") || field.getName().equals("ordinal")) {
 				continue;
 			}
@@ -229,9 +243,14 @@ public class TypeScriptGenUtils {
 	}
 
 	private static String generateExportDeclaration(TypeScriptClass generatedClass) {
-		return "export class " 
-				+ generatedClass.getClazz().getSimpleName() 
-				+ " {\n";
+		StringBuilder sb = new StringBuilder();
+		sb.append("export")
+		.append(generatedClass.getType() == Type.ABSTRACT ? " abstract " : " ")
+		.append("class ")
+		.append(generatedClass.getClazz().getSimpleName())
+		.append(generatedClass.getSuperclazz() != null ? " extends " + generatedClass.getSuperclazz().getSimpleName() : "")
+		.append(" {\n");
+		return sb.toString();
 	}
 
 	private static String generateFields(TypeScriptClass generatedClass) {

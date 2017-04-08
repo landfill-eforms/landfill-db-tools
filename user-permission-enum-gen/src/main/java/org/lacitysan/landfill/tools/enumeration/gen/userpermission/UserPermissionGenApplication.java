@@ -33,7 +33,7 @@ public class UserPermissionGenApplication {
 	/** The base output path of the generate enum class. Set this to the <code>src/main/java</code> directory of the server project. */
 	private static final String OUTPUT_BASE_PATH = "D:\\Eclipse Workspaces\\Landfill-eForms\\landfill-web-app\\server\\src\\main\\java";
 
-	private static final String WORKSHEET_PATH = "D:\\Alvin\\Downloads\\User Roles.xlsx";
+	private static final String WORKSHEET_PATH = "D:\\Alvin\\Downloads\\User Permissions.xlsx";
 
 	public static void main(String[] args) {
 

@@ -12,6 +12,7 @@ public enum Type {
 	TUPLE,
 	ENUM,
 	OBJECT,
+	ABSTRACT,
 	ANY
 	
 }

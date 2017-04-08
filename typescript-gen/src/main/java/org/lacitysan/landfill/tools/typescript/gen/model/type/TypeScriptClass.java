@@ -1,5 +1,6 @@
 package org.lacitysan.landfill.tools.typescript.gen.model.type;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -19,11 +20,16 @@ public class TypeScriptClass extends TypeScriptType {
 	
 	private Set<TypeScriptClass> dependencies = new HashSet<>();
 	
+	private Class<?> superclazz;
+	
 	public TypeScriptClass(Class<?> clazz) {
 		super(Type.OBJECT);
+		if (Modifier.isAbstract(clazz.getModifiers())) {
+			super.type = Type.ABSTRACT;
+		}
 		this.clazz = clazz;
 	}
-
+	
 	public List<TypeScriptField> getFields() {
 		return fields;
 	}
@@ -46,6 +52,14 @@ public class TypeScriptClass extends TypeScriptType {
 
 	public void setDependencies(Set<TypeScriptClass> dependencies) {
 		this.dependencies = dependencies;
+	}
+
+	public Class<?> getSuperclazz() {
+		return superclazz;
+	}
+
+	public void setSuperclazz(Class<?> superclazz) {
+		this.superclazz = superclazz;
 	}
 	
 }
