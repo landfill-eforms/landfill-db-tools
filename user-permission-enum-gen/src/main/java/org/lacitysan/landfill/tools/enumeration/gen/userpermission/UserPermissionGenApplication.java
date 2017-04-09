@@ -17,6 +17,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.lacitysan.landfill.server.persistence.enums.UserPermission;
+import org.lacitysan.landfill.server.util.StringUtils;
+import org.lacitysan.landfill.server.util.StringUtils.Capitalization;
 import org.lacitysan.landfill.tools.enumeration.gen.userpermission.model.UserPermissionConstant;
 
 /**
@@ -134,7 +136,7 @@ public class UserPermissionGenApplication {
 
 			// Constructor call
 			.append(" (\"")
-			.append(constant.getDescription())
+			.append(StringUtils.camelToSpaceDelimited(StringUtils.snakeToCamel(constant.getConstantName(), Capitalization.ALL_CAPS), Capitalization.FIRST_LETTER_CAPS))
 			.append("\", ");
 
 			// Calculate the category, if exists.
