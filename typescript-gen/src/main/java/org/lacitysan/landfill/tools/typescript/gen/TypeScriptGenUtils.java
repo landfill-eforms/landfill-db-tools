@@ -4,9 +4,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -224,13 +227,18 @@ public class TypeScriptGenUtils {
 		return sb.toString();
 	}
 
-	private static String generateClassComments(TypeScriptClass generatedClass) {
-		if (TypeScriptGenConfig.CLASS_COMMENT.length == 0) {
+	private static String generateClassComments(TypeScriptClass generatedClass, boolean includeAoTMessage) {
+		List<String> commentLines = new ArrayList<>();
+		commentLines.addAll(Arrays.asList(TypeScriptGenConfig.CLASS_COMMENT));
+		if (includeAoTMessage) {
+			commentLines.addAll(Arrays.asList(TypeScriptGenConfig.AOT_FIX_COMMENT));
+		}
+		if (commentLines.isEmpty()) {
 			return "";
 		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("/**\n");
-		for (String commentLine : TypeScriptGenConfig.CLASS_COMMENT) {
+		for (String commentLine : commentLines) {
 			sb.append(" * ");
 			sb.append(commentLine
 					.replaceAll("%type", generatedClass.getType() == Type.ENUM ? "enum" : "class")
@@ -333,6 +341,56 @@ public class TypeScriptGenUtils {
 		return sb.toString();
 	}
 	
+	private static String generateEnumConstantsWithAoTFix(TypeScriptEnum generatedClass, boolean includeOrdinal, boolean includeName) {
+		StringBuilder sb = new StringBuilder();
+		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
+			sb.append("\tstatic readonly ")
+			.append(constant.getName())
+			.append(":")
+			.append(generatedClass.getClazz().getSimpleName())
+			.append(" = {");
+			String[] propertyNames = generatedClass.getFields().stream().map(field -> field.getFieldName()).toArray(size -> new String[size]);
+			if (includeOrdinal) {
+				sb.append("\n\t\t").append("ordinal: ")
+				.append(constant.getOrdinal())
+				.append(includeName || propertyNames.length != 0 ? "," : "");
+			}
+			if (includeName) {
+				sb.append("\n\t\t").append("constantName: ")
+				.append("\"")
+				.append(constant.getName())
+				.append("\"")
+				.append(propertyNames.length != 0 ? "," : "");
+			}
+			for (int i = 0; i < propertyNames.length; i++) {
+				Object propertyValue = constant.getProperties().get(propertyNames[i]);
+				sb.append(i > 0 ? ",\n\t\t" : "\n\t\t")
+				.append(propertyNames[i])
+				.append(": ");
+				if (propertyValue == null) {
+					sb.append("null");					
+					continue;
+				}
+				Type propertyType = TypeScriptGenUtils.getType(propertyValue.getClass());
+				if (propertyType == Type.STRING) {
+					sb.append("\"")
+					.append(propertyValue)
+					.append("\"");
+				}
+				else if (propertyType == Type.BOOLEAN || propertyType == Type.NUMBER) {
+					sb.append(propertyValue);
+				}
+				else if (propertyType == Type.ENUM) {
+					sb.append(propertyValue.getClass().getSimpleName())
+					.append(".")
+					.append(((Enum<?>)propertyValue).name());
+				}
+			}
+			sb.append("\n\t};\n\n");
+		}
+		return sb.toString();
+	}
+	
 	public static String generateClass(TypeScriptClass generatedClass) {
 
 		StringBuilder sb = new StringBuilder();
@@ -341,7 +399,7 @@ public class TypeScriptGenUtils {
 		sb.append(generateImportHeader(generatedClass.getClazz(), generatedClass.getDependencies()))
 
 		// Auto-generated class comments.
-		.append(generateClassComments(generatedClass))
+		.append(generateClassComments(generatedClass, false))
 
 		// Export class declaration.
 		.append(generateExportDeclaration(generatedClass))
@@ -356,6 +414,9 @@ public class TypeScriptGenUtils {
 	}
 
 	public static String generateEnum(TypeScriptEnum generatedClass, boolean includeOrdinal, boolean includeName) {
+		
+		// Whether the enum requires a fix for the AoT compile bug.
+		boolean requiresAoTFix = containsClass(TypeScriptGenConfig.AOT_CLASSES, generatedClass.getClazz());
 
 		StringBuilder sb = new StringBuilder();
 
@@ -363,14 +424,19 @@ public class TypeScriptGenUtils {
 		sb.append(generateImportHeader(generatedClass.getClazz(), generatedClass.getDependencies()))
 
 		// Auto-generated class comments.
-		.append(generateClassComments(generatedClass))
+		.append(generateClassComments(generatedClass, requiresAoTFix))
 
 		// Export class declaration.
 		.append(generateExportDeclaration(generatedClass))
-		.append("\n")
+		.append("\n");
 
 		// Enum constants
-		.append(generateEnumConstants(generatedClass, includeOrdinal, includeName));
+		if (requiresAoTFix) {
+			sb.append(generateEnumConstantsWithAoTFix(generatedClass, includeOrdinal, includeName));
+		}
+		else {
+			sb.append(generateEnumConstants(generatedClass, includeOrdinal, includeName));
+		}
 
 		// Enum property fields
 		if (includeOrdinal) {
@@ -380,42 +446,43 @@ public class TypeScriptGenUtils {
 			sb.append("\treadonly constantName:string;\n");
 		}
 		String fields = generateFields(generatedClass);
-		sb.append(fields)
-		.append("\n");
+		sb.append(fields);
 		
-		// Constructor
-		sb.append("\tprivate constructor(");
-		if (includeOrdinal) {
-			sb.append("ordinal:number")
-			.append(includeName || !generatedClass.getFields().isEmpty() ? ", " : "");
+		// Constructor. Enums that require the AoT fix should not have a constructor.
+		if (!requiresAoTFix) {
+			sb.append("\n\tprivate constructor(");
+			if (includeOrdinal) {
+				sb.append("ordinal:number")
+				.append(includeName || !generatedClass.getFields().isEmpty() ? ", " : "");
+			}
+			if (includeName) {
+				sb.append("constantName:string")
+				.append(!generatedClass.getFields().isEmpty() ? ", " : "");
+			}
+			String[] params = fields.replaceAll("\t", "").replaceAll("readonly ", "").split(";\n");
+			for (int i = 0; i < params.length; i++) {
+				sb.append(i > 0 ? ", " : "")
+				.append(params[i]);
+			}
+			sb.append(") {\n");
+			if (includeOrdinal) {
+				sb.append("\t\tthis.ordinal = ordinal;\n");
+			}
+			if (includeName) {
+				sb.append("\t\tthis.constantName = constantName;\n");
+			}
+			for (TypeScriptField field : generatedClass.getFields()) {
+				sb.append("\t\tthis.")
+				.append(field.getFieldName())
+				.append(" = ")
+				.append(field.getFieldName())
+				.append(";\n");
+			}
+			sb.append("\t}\n");
 		}
-		if (includeName) {
-			sb.append("constantName:string")
-			.append(!generatedClass.getFields().isEmpty() ? ", " : "");
-		}
-		String[] params = fields.replaceAll("\t", "").replaceAll("readonly ", "").split(";\n");
-		for (int i = 0; i < params.length; i++) {
-			sb.append(i > 0 ? ", " : "")
-			.append(params[i]);
-		}
-		sb.append(") {\n");
-		if (includeOrdinal) {
-			sb.append("\t\tthis.ordinal = ordinal;\n");
-		}
-		if (includeName) {
-			sb.append("\t\tthis.constantName = constantName;\n");
-		}
-		for (TypeScriptField field : generatedClass.getFields()) {
-			sb.append("\t\tthis.")
-			.append(field.getFieldName())
-			.append(" = ")
-			.append(field.getFieldName())
-			.append(";\n");
-		}
-		sb.append("\t}\n")
 		
 		// Values
-		.append("\n\tstatic values():")
+		sb.append("\n\tstatic values():")
 		.append(generatedClass.getClazz().getSimpleName())
 		.append("[] {")
 		.append("\n\t\treturn [\n");
@@ -431,29 +498,6 @@ public class TypeScriptGenUtils {
 		
 		// Closing bracket
 		sb.append("\n\n}");
-		
-		// Ahead-of-Time (AoT) compile fix. 
-		// This is a temporary fix for an issue with angular-cli's AoT compilation. 
-		// Remove when the fix is not longer necessary.
-		if (containsClass(TypeScriptGenConfig.AOT_CLASSES, generatedClass.getClazz())) {
-			sb.append("\n\n")
-			.append("/** Temporary fix for an issue with angular-cli's Ahead-of-Time (AoT) compilation. */")
-			.append("\n")
-			.append("export const AOT")
-			.append(generatedClass.getClazz().getSimpleName())
-			.append(" = {\n");
-			i = 0;
-			for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
-				sb.append(i++ == 0 ? "\t" : ",\n\t")
-				.append(constant.getName())
-				.append(": ")
-				.append(generatedClass.getClazz().getSimpleName())
-				.append("[\"")
-				.append(constant.getName())
-				.append("\"]");
-			}
-			sb.append("\n}");
-		}
 
 		return sb.toString();
 	}

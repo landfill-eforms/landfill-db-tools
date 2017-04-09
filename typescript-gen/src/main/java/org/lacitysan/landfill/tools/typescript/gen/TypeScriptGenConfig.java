@@ -11,6 +11,11 @@ public class TypeScriptGenConfig {
 			"This %type was automatically generated from %classname.java using typescript-gen.", 
 			"https://github.com/landfill-eforms/landfill-tools/tree/master/typescript-gen"
 	};
+	
+	public static final String[] AOT_FIX_COMMENT = new String[] {
+			"This %type includes a fix for the Ahead-of-Time (AoT) compile bug which prevents compilation if a constructor has to be called within a static variable from a different class.", 
+			"As a result, this %type doesn't have a constructor, and its constants are declared directly instead of through a constructor."
+	};
 
 	public static final boolean ADD_SPACES_TO_IMPORT = true;
 	
