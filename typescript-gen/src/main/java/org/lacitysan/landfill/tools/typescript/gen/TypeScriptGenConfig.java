@@ -41,15 +41,23 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.persistence.entity.scheduled.ScheduledNotification.class,
 		org.lacitysan.landfill.server.persistence.entity.scheduled.ScheduledReport.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedDataSet.class,
-		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedImeData.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedInstantaneousData.class,
 		org.lacitysan.landfill.server.persistence.entity.user.User.class,
 		org.lacitysan.landfill.server.persistence.entity.user.UserGroup.class
 	};
 	
-	/** Classes that will include the temporary AoT compile fix. Remove when the fix is not longer necessary. */
+	/** 
+	 * Enum classes that will include the temporary AoT compile fix, which forces the enums to always declare its constants directly instead of using a constructor.
+	 * Remove when the fix is not longer necessary. 
+	 */
 	public static final Class<?>[] AOT_CLASSES = new Class<?>[] {
-		org.lacitysan.landfill.server.persistence.enums.UserPermission.class
+		org.lacitysan.landfill.server.persistence.enums.user.UserPermission.class
 	};
+	
+	/** 
+	 * Whether to use a constructor to declare static constants instead of declaring the constants as objects directly. 
+	 * Only applies to enum classes.
+	 */
+	public static final boolean USE_CONSTRUCTOR = false;
 
 }

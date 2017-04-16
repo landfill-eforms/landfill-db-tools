@@ -413,6 +413,7 @@ public class TypeScriptGenUtils {
 		return sb.toString();
 	}
 
+	@SuppressWarnings("unused")
 	public static String generateEnum(TypeScriptEnum generatedClass, boolean includeOrdinal, boolean includeName) {
 		
 		// Whether the enum requires a fix for the AoT compile bug.
@@ -431,7 +432,7 @@ public class TypeScriptGenUtils {
 		.append("\n");
 
 		// Enum constants
-		if (requiresAoTFix) {
+		if (requiresAoTFix || !TypeScriptGenConfig.USE_CONSTRUCTOR) {
 			sb.append(generateEnumConstantsWithAoTFix(generatedClass, includeOrdinal, includeName));
 		}
 		else {
@@ -449,7 +450,7 @@ public class TypeScriptGenUtils {
 		sb.append(fields);
 		
 		// Constructor. Enums that require the AoT fix should not have a constructor.
-		if (!requiresAoTFix) {
+		if (!requiresAoTFix && TypeScriptGenConfig.USE_CONSTRUCTOR) {
 			sb.append("\n\tprivate constructor(");
 			if (includeOrdinal) {
 				sb.append("ordinal:number")
