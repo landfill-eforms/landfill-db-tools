@@ -130,9 +130,13 @@ public class TypeScriptGenUtils {
 			}
 			properties.put(field.getName(), getter);
 		}
-		for (Object enumConstant : clazz.getEnumConstants()) {
+		for (Object o : clazz.getEnumConstants()) {
+			if (!(o instanceof Enum)) {
+				continue;
+			}
+			Enum<?> enumConstant = (Enum<?>)o;
 			TypeScriptEnumConstant constant = new TypeScriptEnumConstant();
-			constant.setName(enumConstant.toString());
+			constant.setName(enumConstant.name());
 			constant.setOrdinal(result.getConstants().size());
 			for (String propertyName : properties.keySet()) {
 				try {

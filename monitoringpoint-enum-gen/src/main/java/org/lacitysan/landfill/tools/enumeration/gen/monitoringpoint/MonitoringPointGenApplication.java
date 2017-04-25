@@ -14,9 +14,9 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.lacitysan.landfill.server.persistence.enums.MonitoringPoint;
-import org.lacitysan.landfill.server.persistence.enums.MonitoringPointType;
-import org.lacitysan.landfill.server.persistence.enums.Site;
+import org.lacitysan.landfill.server.persistence.enums.location.MonitoringPoint;
+import org.lacitysan.landfill.server.persistence.enums.location.MonitoringPointType;
+import org.lacitysan.landfill.server.persistence.enums.location.Site;
 import org.lacitysan.landfill.tools.enumeration.gen.monitoringpoint.model.MonitoringPointConstant;
 
 /**
@@ -162,6 +162,12 @@ public class MonitoringPointGenApplication {
 		.append("\n\t}")
 		.append("\n\n\t").append("public MonitoringPointType getType() {")
 		.append("\n\t\t").append("return type;")
+		.append("\n\t}")
+		
+		// toString() method.
+		.append("\n\n\t").append("@Override")
+		.append("\n\t").append("public String toString() {")
+		.append("\n\t\t").append("return name;")
 		.append("\n\t}")
 		
 		// Deserializer

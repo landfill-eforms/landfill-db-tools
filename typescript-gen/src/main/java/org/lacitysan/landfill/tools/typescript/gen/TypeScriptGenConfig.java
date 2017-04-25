@@ -25,25 +25,31 @@ public class TypeScriptGenConfig {
 
 	public static final Class<?>[] BASE_CLASSES = new Class<?>[] {
 		org.lacitysan.landfill.server.persistence.entity.email.EmailRecipient.class,
-		org.lacitysan.landfill.server.persistence.entity.instantaneous.ImeData.class,
-		org.lacitysan.landfill.server.persistence.entity.instantaneous.ImeNumber.class,
-		org.lacitysan.landfill.server.persistence.entity.instantaneous.ImeRepairData.class,
-		org.lacitysan.landfill.server.persistence.entity.instantaneous.InstantaneousData.class,
-		org.lacitysan.landfill.server.persistence.entity.instantaneous.WarmspotData.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.Instrument.class,
 		org.lacitysan.landfill.server.persistence.entity.instrument.InstrumentType.class,
-		org.lacitysan.landfill.server.persistence.entity.integrated.IntegratedData.class,
-		org.lacitysan.landfill.server.persistence.entity.integrated.IseData.class,
-		org.lacitysan.landfill.server.persistence.entity.integrated.IseNumber.class,
-		org.lacitysan.landfill.server.persistence.entity.integrated.IseRepairData.class,
 		org.lacitysan.landfill.server.persistence.entity.probe.ProbeData.class,
+		org.lacitysan.landfill.server.persistence.entity.report.IndividualReportQuery.class,
+		org.lacitysan.landfill.server.persistence.entity.report.ScheduledReportQuery.class,
 		org.lacitysan.landfill.server.persistence.entity.scheduled.Schedule.class,
 		org.lacitysan.landfill.server.persistence.entity.scheduled.ScheduledNotification.class,
 		org.lacitysan.landfill.server.persistence.entity.scheduled.ScheduledReport.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.instantaneous.ImeData.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.instantaneous.ImeNumber.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.instantaneous.ImeRepairData.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.instantaneous.InstantaneousData.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.instantaneous.WarmspotData.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.integrated.IntegratedData.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.integrated.IseData.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.integrated.IseNumber.class,
+		org.lacitysan.landfill.server.persistence.entity.serviceemission.integrated.IseRepairData.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedDataSet.class,
 		org.lacitysan.landfill.server.persistence.entity.unverified.UnverifiedInstantaneousData.class,
 		org.lacitysan.landfill.server.persistence.entity.user.User.class,
-		org.lacitysan.landfill.server.persistence.entity.user.UserGroup.class
+		org.lacitysan.landfill.server.persistence.entity.user.UserGroup.class,
+		org.lacitysan.landfill.server.service.report.model.ExceedanceReport.class,
+		org.lacitysan.landfill.server.service.report.model.InstantaneousReport.class,
+		org.lacitysan.landfill.server.service.report.model.IntegratedReport.class,
+		org.lacitysan.landfill.server.service.report.model.ProbeReport.class
 	};
 	
 	/** 

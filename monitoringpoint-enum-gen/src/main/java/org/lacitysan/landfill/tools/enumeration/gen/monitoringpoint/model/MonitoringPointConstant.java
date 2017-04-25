@@ -1,7 +1,7 @@
 package org.lacitysan.landfill.tools.enumeration.gen.monitoringpoint.model;
 
-import org.lacitysan.landfill.server.persistence.enums.MonitoringPointType;
-import org.lacitysan.landfill.server.persistence.enums.Site;
+import org.lacitysan.landfill.server.persistence.enums.location.MonitoringPointType;
+import org.lacitysan.landfill.server.persistence.enums.location.Site;
 
 /**
  * @author Alvin Quach
