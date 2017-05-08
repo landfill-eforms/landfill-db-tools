@@ -5,7 +5,7 @@ import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
 /**
  * @author Alvin Quach
  */
-public abstract class TypeScriptType {
+public abstract class TypeScriptType implements Comparable<TypeScriptType> {
 	
 	protected Type type;
 	
@@ -18,5 +18,10 @@ public abstract class TypeScriptType {
 	}
 	
 	public abstract Class<?> getClazz();
+	
+	@Override 
+	public int compareTo(TypeScriptType o) {
+		return getClazz().getName().compareTo(o.getClazz().getName());
+	}
 
 }

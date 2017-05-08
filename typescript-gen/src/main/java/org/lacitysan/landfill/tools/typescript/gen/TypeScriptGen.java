@@ -4,8 +4,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptClass;
 import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptEnum;
@@ -22,7 +22,7 @@ public class TypeScriptGen {
 		if (args.length > 0) {
 			baseDirectory = args[0] + File.separator;
 		}
-		Set<TypeScriptClass> generatedClasses = new HashSet<>();
+		Set<TypeScriptClass> generatedClasses = new TreeSet<>();
 		for (Class<?> clazz : TypeScriptGenConfig.BASE_CLASSES) {
 			if (!generatedClasses.stream().anyMatch(c -> c.getClazz() == clazz)) {
 				generatedClasses.add(TypeScriptGenUtils.processClass(clazz, generatedClasses));

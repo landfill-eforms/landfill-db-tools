@@ -2,9 +2,9 @@ package org.lacitysan.landfill.tools.typescript.gen.model.type;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptField;
@@ -18,7 +18,7 @@ public class TypeScriptClass extends TypeScriptType {
 	
 	private Class<?> clazz;
 	
-	private Set<TypeScriptClass> dependencies = new HashSet<>();
+	private Set<TypeScriptClass> dependencies = new TreeSet<>();
 	
 	private Class<?> superclazz;
 	

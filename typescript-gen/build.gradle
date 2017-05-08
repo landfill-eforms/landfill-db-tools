@@ -8,10 +8,13 @@ ext {
 	springBeansVersion = '4.3.6.RELEASE'
 	jacksonVersion = '2.8.7'
 	javaxMailVersion = '1.5.6'
+	javaxPersistenceVersion = '1.0.2'
 }
 
 dependencies {
 	compile('org.springframework:spring-beans:' + springBeansVersion)
 	compile('com.fasterxml.jackson.core:jackson-databind:' + jacksonVersion)
 	compile('com.sun.mail:javax.mail:' + javaxMailVersion)
+	compile('javax.persistence:persistence-api:' + javaxPersistenceVersion)
+	
 }

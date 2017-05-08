@@ -16,7 +16,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.lacitysan.landfill.server.persistence.enums.UserPermission;
+import org.lacitysan.landfill.server.persistence.enums.user.UserPermission;
 import org.lacitysan.landfill.server.util.StringUtils;
 import org.lacitysan.landfill.server.util.StringUtils.Capitalization;
 import org.lacitysan.landfill.tools.enumeration.gen.userpermission.model.UserPermissionConstant;

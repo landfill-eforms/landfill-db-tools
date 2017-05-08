@@ -3,6 +3,7 @@ package org.lacitysan.landfill.tools.typescript.gen;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.persistence.Transient;
 
 import org.lacitysan.landfill.server.util.StringUtils;
 import org.lacitysan.landfill.server.util.StringUtils.Capitalization;
@@ -57,41 +60,47 @@ public class TypeScriptGenUtils {
 				continue;
 			}
 			Type fieldType = TypeScriptGenUtils.getType(field.getType());
+			TypeScriptField typeScriptField;
 			if (fieldType == Type.BOOLEAN || fieldType == Type.NUMBER || fieldType == Type.STRING) {
-				result.getFields().add(new TypeScriptSimpleField(field.getName(), fieldType));
+				typeScriptField = new TypeScriptSimpleField(field.getName(), fieldType);
 			}
 			else if (fieldType == Type.ARRAY) {
-				TypeScriptArrayField arrayField = new TypeScriptArrayField(field.getName());
+				typeScriptField = new TypeScriptArrayField(field.getName());
 				Class<?> genericClass = (Class<?>)((ParameterizedType)field.getGenericType()).getActualTypeArguments()[0];
 				Type genericType = getType(genericClass);
 				if (genericType == Type.OBJECT) {
 					TypeScriptClass proccessedClass = processClass(genericClass, generatedClasses);
 					result.getDependencies().add(proccessedClass);
-					arrayField.setGenericType(proccessedClass);
+					((TypeScriptArrayField)typeScriptField).setGenericType(proccessedClass);
 				}
 				else if (genericType == Type.ENUM) {
 					TypeScriptEnum proccessedEnum = processEnum(genericClass, generatedClasses);
 					result.getDependencies().add(proccessedEnum);
-					arrayField.setGenericType(proccessedEnum);
+					((TypeScriptArrayField)typeScriptField).setGenericType(proccessedEnum);
 				}
 				else {
-					arrayField.setGenericType(new TypeScriptSimpleType(genericType));
+					((TypeScriptArrayField)typeScriptField).setGenericType(new TypeScriptSimpleType(genericType));
 				}
-				result.getFields().add(arrayField);
 			}
 			else if (fieldType == Type.ENUM) {
 				TypeScriptEnum proccessedEnum = processEnum(field.getType(), generatedClasses);
 				result.getDependencies().add(proccessedEnum);
-				result.getFields().add(new TypeScriptEnumField(field.getName(), proccessedEnum));
+				typeScriptField = new TypeScriptEnumField(field.getName(), proccessedEnum);
 			}
 			else if (fieldType == Type.OBJECT) {
 				TypeScriptClass proccessedClass = processClass(field.getType(), generatedClasses);
-				result.getDependencies().add(proccessedClass);
-				result.getFields().add(new TypeScirptObjectField(field.getName(), proccessedClass));
+				if (proccessedClass.getClazz() != clazz) {
+					result.getDependencies().add(proccessedClass);
+				}
+				typeScriptField = new TypeScirptObjectField(field.getName(), proccessedClass);
 			}
-			else if (fieldType == Type.ANY) {
-				result.getFields().add(new TypeScriptSimpleField(field.getName(), fieldType));
+			else {
+				typeScriptField = new TypeScriptSimpleField(field.getName(), fieldType);
 			}
+			typeScriptField.setStatic(Modifier.isStatic(field.getModifiers()));
+			typeScriptField.setReadonly(Modifier.isFinal(field.getModifiers()));
+			typeScriptField.setTransient(AnnotationUtils.findAnnotation(field, Transient.class) != null);
+			result.getFields().add(typeScriptField);
 		}
 		return result;
 	}
@@ -269,8 +278,10 @@ public class TypeScriptGenUtils {
 		StringBuilder sb = new StringBuilder();
 		for (TypeScriptField field : generatedClass.getFields()) {
 			sb.append("\t")
+			.append(field.isStatic() ? "static " : "")
 			.append(field.isReadonly() ? "readonly " : "")
 			.append(field.getFieldName())
+			.append(field.isTransient() ? "?" : "") // Set transient fields to be optional. Is this a bad idea?
 			.append(":");
 			if (field instanceof TypeScirptObjectField) {
 				sb.append(((TypeScirptObjectField)field).getClassType().getClazz().getSimpleName());
