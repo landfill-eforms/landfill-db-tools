@@ -50,6 +50,7 @@ public class TypeScriptGenConfig {
 		org.lacitysan.landfill.server.service.report.model.ExceedanceReport.class,
 		org.lacitysan.landfill.server.service.report.model.InstantaneousReport.class,
 		org.lacitysan.landfill.server.service.report.model.IntegratedReport.class,
+		org.lacitysan.landfill.server.service.report.model.WarmspotReport.class,
 		org.lacitysan.landfill.server.service.report.model.ProbeReport.class
 	};
 	
