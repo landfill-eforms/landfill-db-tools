@@ -6,15 +6,15 @@ import org.lacitysan.landfill.tools.typescript.gen.model.type.TypeScriptClass;
 /**
  * @author Alvin Quach
  */
-public class TypeScirptObjectField extends TypeScriptField {
+public class TypeScriptObjectField extends TypeScriptField {
 	
 	private TypeScriptClass classType;
 	
-	public TypeScirptObjectField(String fieldName) {
+	public TypeScriptObjectField(String fieldName) {
 		super(fieldName);
 	}
 	
-	public TypeScirptObjectField(String fieldName, TypeScriptClass classType) {
+	public TypeScriptObjectField(String fieldName, TypeScriptClass classType) {
 		super(fieldName);
 		this.classType = classType;
 	}

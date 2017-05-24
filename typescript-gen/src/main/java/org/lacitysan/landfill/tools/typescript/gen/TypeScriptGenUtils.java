@@ -20,7 +20,7 @@ import org.lacitysan.landfill.server.util.StringUtils;
 import org.lacitysan.landfill.server.util.StringUtils.Capitalization;
 import org.lacitysan.landfill.tools.typescript.gen.constants.Type;
 import org.lacitysan.landfill.tools.typescript.gen.model.constant.TypeScriptEnumConstant;
-import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScirptObjectField;
+import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptObjectField;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptArrayField;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptEnumField;
 import org.lacitysan.landfill.tools.typescript.gen.model.field.TypeScriptField;
@@ -92,7 +92,7 @@ public class TypeScriptGenUtils {
 				if (proccessedClass.getClazz() != clazz) {
 					result.getDependencies().add(proccessedClass);
 				}
-				typeScriptField = new TypeScirptObjectField(field.getName(), proccessedClass);
+				typeScriptField = new TypeScriptObjectField(field.getName(), proccessedClass);
 			}
 			else {
 				typeScriptField = new TypeScriptSimpleField(field.getName(), fieldType);
@@ -283,8 +283,8 @@ public class TypeScriptGenUtils {
 			.append(field.getFieldName())
 			.append(field.isTransient() ? "?" : "") // Set transient fields to be optional. Is this a bad idea?
 			.append(":");
-			if (field instanceof TypeScirptObjectField) {
-				sb.append(((TypeScirptObjectField)field).getClassType().getClazz().getSimpleName());
+			if (field instanceof TypeScriptObjectField) {
+				sb.append(((TypeScriptObjectField)field).getClassType().getClazz().getSimpleName());
 			}
 			else if (field instanceof TypeScriptEnumField) {
 				sb.append(((TypeScriptEnumField)field).getEnumType().getClazz().getSimpleName());
