@@ -282,7 +282,7 @@ public class TypeScriptGenUtils {
 			.append(field.isReadonly() ? "readonly " : "")
 			.append(field.getFieldName())
 			.append(field.isTransient() ? "?" : "") // Set transient fields to be optional. Is this a bad idea?
-			.append(":");
+			.append(": ");
 			if (field instanceof TypeScriptObjectField) {
 				sb.append(((TypeScriptObjectField)field).getClassType().getClazz().getSimpleName());
 			}
@@ -312,7 +312,7 @@ public class TypeScriptGenUtils {
 		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
 			sb.append("\tstatic readonly ")
 			.append(constant.getName())
-			.append(":")
+			.append(": ")
 			.append(generatedClass.getClazz().getSimpleName())
 			.append(" = new ")
 			.append(generatedClass.getClazz().getSimpleName())
@@ -361,7 +361,7 @@ public class TypeScriptGenUtils {
 		for (TypeScriptEnumConstant constant : generatedClass.getConstants()) {
 			sb.append("\tstatic readonly ")
 			.append(constant.getName())
-			.append(":")
+			.append(": ")
 			.append(generatedClass.getClazz().getSimpleName())
 			.append(" = {");
 			String[] propertyNames = generatedClass.getFields().stream().map(field -> field.getFieldName()).toArray(size -> new String[size]);
